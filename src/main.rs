@@ -32,13 +32,6 @@ fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
     }
 }
 
-fn parse_complex(s: &str) -> Option<Complex<f64>> {
-    match parse_pair(s, ',') {
-        Some((re, im)) => Some(Complex { re, im }),
-        None => None,
-    }
-}
-
 fn pixel_to_point(
     bounds: (usize, usize),
     pixel: (usize, usize),
@@ -84,14 +77,17 @@ fn write_image(fliename: &str, pixels: &[u8], bounds: (usize, usize)) -> Result<
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() != 5 {
-        eprintln!("Usage: {} FILE PIXELS_WIDTH TOP_LEFT BOTTOM_RIGHT", args[0]);
+        eprintln!("Usage: {} FILE PIXELS_WIDTH RE_RANGE IM_RANGE", args[0]);
         eprintln!("Exapple: {} mandel.png 2000 -1.20,0.35 -1,0.20", args[0]);
         std::process::exit(1);
     }
 
     let width_px = parse_width(&args[2]).expect("error parsing image width");
-    let top_left = parse_complex(&args[3]).expect("error parsing upper left corner point");
-    let bottom_right = parse_complex(&args[4]).expect("error parsing lower right corner point");
+    let (left, right) = parse_pair(&args[3], ',').expect("error parsing re range");
+    let (bottom, top) = parse_pair(&args[4], ',').expect("error parsing im range");
+
+    let top_left = Complex {re: left, im: top};
+    let bottom_right = Complex {re: right, im: bottom};
 
     let width = bottom_right.re - top_left.re;
     let height = top_left.im - bottom_right.im;
@@ -99,9 +95,6 @@ fn main() {
     let ratio = width_px as f64 / width;
     let height_px = (height * ratio) as usize;
     let bounds = (width_px, height_px);
-
-    println!(">>ratio: {}", ratio);
-    println!(">>height_px: {}", height_px);
 
     let mut pixels = vec![0; bounds.0 * bounds.1];
     render(&mut pixels, bounds, top_left, bottom_right);
