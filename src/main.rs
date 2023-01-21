@@ -13,6 +13,13 @@ fn escape_time(c: Complex<f64>, limit: usize) -> Option<usize> {
     None
 }
 
+fn parse_width<T: FromStr>(s: &str) -> Option<T> {
+    match T::from_str(s) {
+        Ok(v) => Some(v),
+        _ => None,
+    }
+}
+
 fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
     match s.find(separator) {
         None => None,
@@ -77,14 +84,24 @@ fn write_image(fliename: &str, pixels: &[u8], bounds: (usize, usize)) -> Result<
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() != 5 {
-        eprintln!("Usage: {} FILE PIXELS UPPER_LEFT LOWER_RIGHT", args[0]);
-        eprintln!("Exapple: {} mandel.png 10000x750 -12,0.35 -1,0.20", args[0]);
+        eprintln!("Usage: {} FILE PIXELS_WIDTH UPPER_LEFT LOWER_RIGHT", args[0]);
+        eprintln!("Exapple: {} mandel.png 2000 -1.20,0.35 -1,0.20", args[0]);
         std::process::exit(1);
     }
 
-    let bounds = parse_pair(&args[2], 'x').expect("error parsing image dimensions");
+    let width_px = parse_width(&args[2]).expect("error parsing image width");
     let upper_left = parse_complex(&args[3]).expect("error parsing upper left corner point");
     let lower_right = parse_complex(&args[4]).expect("error parsing lower right corner point");
+
+    let width = lower_right.re - upper_left.re;
+    let height = upper_left.im - lower_right.im;
+
+    let ratio = width_px as f64 / width;
+    let height_px = (height * ratio) as usize;
+    let bounds = (width_px, height_px);
+
+    println!(">>ratio: {}", ratio);
+    println!(">>height_px: {}", height_px);
 
     let mut pixels = vec![0; bounds.0 * bounds.1];
     render(&mut pixels, bounds, upper_left, lower_right);
