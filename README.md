@@ -10,4 +10,7 @@ $ mandelbrot mandelbrot.png 1000 -1.0385,-1.034 0.2545,0.259
 ```
 
 ## Sample Image
-![](/images/mandelbrot_500,-1.0385,-1.034,0.2545,0.259.png)
+<figure>
+<img src="/images/mandelbrot_500,-1.0385,-1.034,0.2545,0.259.png" alt="mandelbrot" style="width:100%">
+<figcaption align = "center">Sample image</figcaption>
+</figure>
