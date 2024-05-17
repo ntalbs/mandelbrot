@@ -71,7 +71,7 @@ fn render(
 fn write_image(fliename: &str, pixels: &[u8], bounds: (usize, usize)) -> Result<(), ImageError> {
     let output = File::create(fliename)?;
     let encoder = PngEncoder::new(output);
-    encoder.write_image(&pixels, bounds.0 as u32, bounds.1 as u32, ColorType::L8)
+    encoder.write_image(pixels, bounds.0 as u32, bounds.1 as u32, ColorType::L8)
 }
 
 fn main() {
