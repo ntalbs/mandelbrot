@@ -1,6 +1,6 @@
-use image::{codecs::png::PngEncoder, ColorType, ImageError, ImageEncoder};
+use image::{codecs::png::PngEncoder, ColorType, ImageEncoder, ImageError};
 use num::Complex;
-use std::{str::FromStr, fs::File};
+use std::{fs::File, str::FromStr};
 
 fn escape_time(c: Complex<f64>, limit: usize) -> Option<usize> {
     let mut z = Complex { re: 0.0, im: 0.0 };
@@ -23,12 +23,10 @@ fn parse_width<T: FromStr>(s: &str) -> Option<T> {
 fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
     match s.find(separator) {
         None => None,
-        Some(index) => {
-            match (T::from_str(&s[..index]), T::from_str(&s[index + 1..])) {
-                (Ok(l), Ok(r)) => Some((l, r)),
-                _ => None,
-            }
-        }
+        Some(index) => match (T::from_str(&s[..index]), T::from_str(&s[index + 1..])) {
+            (Ok(l), Ok(r)) => Some((l, r)),
+            _ => None,
+        },
     }
 }
 
@@ -38,15 +36,11 @@ fn pixel_to_point(
     top_left: Complex<f64>,
     bottom_right: Complex<f64>,
 ) -> Complex<f64> {
-    let (width, height) = (
-        bottom_right.re - top_left.re,
-        top_left.im - bottom_right.im
-    );
+    let (width, height) = (bottom_right.re - top_left.re, top_left.im - bottom_right.im);
     Complex {
         re: top_left.re + pixel.0 as f64 * width / bounds.0 as f64,
-        im: top_left.im - pixel.1 as f64 * height / bounds.1 as f64
+        im: top_left.im - pixel.1 as f64 * height / bounds.1 as f64,
     }
-
 }
 
 fn render(
@@ -86,8 +80,11 @@ fn main() {
     let (left, right) = parse_pair(&args[3], ',').expect("error parsing re range");
     let (bottom, top) = parse_pair(&args[4], ',').expect("error parsing im range");
 
-    let top_left = Complex {re: left, im: top};
-    let bottom_right = Complex {re: right, im: bottom};
+    let top_left = Complex { re: left, im: top };
+    let bottom_right = Complex {
+        re: right,
+        im: bottom,
+    };
 
     let width = bottom_right.re - top_left.re;
     let height = top_left.im - bottom_right.im;
