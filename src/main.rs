@@ -1,5 +1,6 @@
 use image::{codecs::png::PngEncoder, ColorType, ImageEncoder, ImageError};
 use num::Complex;
+use rayon::prelude::*;
 use std::{fs::File, str::FromStr};
 
 fn escape_time(c: Complex<f64>, limit: usize) -> Option<usize> {
@@ -94,6 +95,13 @@ fn main() {
     let bounds = (width_px, height_px);
 
     let mut pixels = vec![0; bounds.0 * bounds.1];
-    render(&mut pixels, bounds, top_left, bottom_right);
+    let bands: Vec<(usize, &mut [u8])> = pixels.chunks_mut(bounds.0).enumerate().collect();
+    bands.into_par_iter().for_each(|(i, band)| {
+        let top = i;
+        let band_bounds = (bounds.0, 1);
+        let band_top_left = pixel_to_point(bounds, (0, top), top_left, bottom_right);
+        let band_bottom_right = pixel_to_point(bounds, (bounds.0, top + 1), top_left, bottom_right);
+        render(band, band_bounds, band_top_left, band_bottom_right);
+    });
     write_image(&args[1], &pixels, bounds).expect("error writing PNG file");
 }
