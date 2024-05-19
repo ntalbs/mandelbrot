@@ -72,7 +72,7 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() != 5 {
         eprintln!("Usage: {} FILE PIXELS_WIDTH RE_RANGE IM_RANGE", args[0]);
-        eprintln!("Exapple: {} mandel.png 2000 -1.20,0.35 -1,0.20", args[0]);
+        eprintln!("Example: {} mandel.png 2000 -1.20,0.35 -1,0.20", args[0]);
         std::process::exit(1);
     }
 
